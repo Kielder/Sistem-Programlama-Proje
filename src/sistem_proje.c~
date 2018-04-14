@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
-    printf("Hello World!\n");
+int main(int argc, char **argv) {
+    while(strcmp(argv[0], "quit") != 0) { // girilen parametre quit olmadigi sürece calisacak
+
+    }
     
     return 0;
 }
