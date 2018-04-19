@@ -110,17 +110,19 @@ int get_line(IS is)
   strcpy(is->text2, is->text1);
 
   line = is->text2;
-  lastchar = ' ';
+  lastchar = ' '; // lastchar = '|'
   for (i = 0; line[i] != '\0' && i < MAXLEN-1; i++) {
-    if (isspace(line[i])) {
-      lastchar = line[i];
-      line[i] = '\0';
-    } else {
-      if (isspace(lastchar)) {
-        is->fields[is->NF] = line+i;
+    if (line[i] == '|') { //isspace(line[i])    //Eğer okunan değer BOŞLUK İSE
+      lastchar = line[i];                       //lastcharı = BOŞLUK yap
+      line[i] = '\0';                           //line[i] = '\0' yap ve FOR döngüsünün bitmesini sağla
+    } else {                                            // Eğer okunan değer bir boşluk DEĞİLSE
+      if (lastchar == '|') { //isspace(lastchar) //        // lastchar = BOŞLUK ise 
+        //printf("line=%s, i=%d ve line + i = %s\n", line, i, line+i);
+        is->fields[is->NF] = line+i;                    // fields[satırSayısı] = karakterler+
         is->NF++;
       }
       lastchar = line[i];
+      //printf("lastchar: %c\n", lastchar);
     }
   }
   return is->NF;

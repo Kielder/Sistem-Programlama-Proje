@@ -1,8 +1,49 @@
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include "jrb.h"
+// #include "fields.h"
+
+// typedef struct {
+// 	char *key;
+// 	char *isim;
+// 	char *soyad;
+// } Kisi;
+
+// int main() {
+//     IS is;
+
+// 	JRB agac, ptr;
+// 	Kisi *ks;
+// 	agac = make_jrb();
+// 	ks = (Kisi *) malloc(sizeof(Kisi));
+// 	ks->key = "aloha"; ks->isim = "muratcan"; ks->soyad = "yurga";
+
+//     is = new_inputstruct(NULL); // use NULL for stdin
+//     while(get_line(is) >= 0) {
+//         for (int i = 0; i < is->NF; i++) {
+//             //printf("is->fields[i] = %s\n", is->fields[i]);
+//             printf("%d: %s\n", is->line, is->fields[i]);
+//         }
+//     }
+
+// 	//jrb_insert_str(t, strdup(myis->fields[i]), new_jval_v(NULL));
+// 	// jrb_insert_str(agac, strdup(ks->key), new_jval_v(ks));
+	
+// 	// jrb_traverse(ptr, agac) {
+// 	// 	ks = (Kisi *) ptr->val.v;
+// 	//     printf("key: %s,  isim: %s, soyad: %s\n", jval_s(ptr->key), ks->isim, ks->soyad);
+// 	// }
+	
+// 	free(ks);
+// 	return 0;
+// }
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "jrb.h"
 #include "jval.h"
+#include "fields.h"
 
 #define BUFFER_LEN 1024
 
@@ -14,81 +55,55 @@ typedef struct {
 } Siparis;
 
 int main(int argc, char *argv[]) {
+    IS is;
     char line[BUFFER_LEN];
-    char *tKey, *tAd, *tMalzeme, *tRenk;
-    char *params[4] = {tKey, tAd, tMalzeme, tRenk};
+    char params[50];
     Siparis *sip;
     JRB redBlackTree, rDugum, sortedRB_tree;
-    int i;
     
     redBlackTree = make_jrb();
+    is = new_inputstruct(NULL); // use NULL for std input
     
-    while(1) {
+    while(strcmp(is->text2, "quit\n")) {
         printf("> ");
         fflush(stdout);
-        fgets(line, BUFFER_LEN, stdin); // Kullanıcıdan komutu al ve line bufferina at.
-
-        int length = strlen(line); // alinan komutun uzunlugu length degiskenine atandı.
-        if (line[length - 1] == '\n') { // komutun sonunda '\n' -yeni satır ifadesi- varsa
-            line[length - 1] = '\0';  // bunu satır sonu ifadesi olarak değiştir.
-        }                           // son satırın '\0' olarak değişmesi strcmp() i düzgün çalıştırır
-       
-        if(strcmp(line, "quit") == 0) {
-            break;
-        }
-        
-        i = 0; // kaç adet parametre girildiğini anlamak için
-        char *parcala; 
-        parcala = strtok(line,"|"); 
-
-        if(!strcmp(parcala, "add")) {
-            parcala = strtok(NULL, "|"); // add ten sonraki ilk parametreye geldik.
-            
-            while(parcala != NULL) {
-                params[i] = parcala;
-                parcala = strtok(NULL, "|");
-                i++;
-            }
-            
-            if(i == 4) { // Dogru miktarda parametre girilmis ise
-                rDugum = jrb_find_str(redBlackTree, params[0]); // agac içerisinde eklemek istedigim key varmi
-
-                if(rDugum == NULL) { // böyle bir key ağaçta yoksa yeni node oluşturulmalı
-                     sip = (Siparis *) malloc(sizeof(Siparis)); // *** FREE MEMORY ***,
-                     sip->sipKey     = params[0];
-                     sip->sipAd      = params[1];
-                     sip->sipMalzeme = params[2];
-                     sip->sipRenk    = params[3];
-                     printf("sipKey = %s | sipAd = %s | sipMalzeme = %s | sipRenk = %s\n", sip->sipKey, sip->sipAd, sip->sipMalzeme, sip->sipRenk); // Test
-                     jrb_insert_str(redBlackTree, sip->sipKey, new_jval_v(sip));
+        while(get_line(is) >= 0) {
+            if(!strcmp(is->text2, "add")) { 
+                if(is->NF < 4 || is->NF > 4) {
+                    printf("4 adet parametre girmelisiniz\n");
                 }
                 else {
-                    printf("ERROR: Bu key degeri zaten var!\n");
+                    strcpy(params, "");
+                    strcat(params, is->fields[0]);
+                    strcat(params, ",");
+                    strcat(params, is->fields[1]);
+                    strcat(params, ",");
+                    strcat(params, is->fields[2]); // jrb_insert_str(redBlackTree, strdup(sip->sipKey), new_jval_v(sip));
+                    strcat(params, ",");
+                    strcat(params, is->fields[3]);
+                    printf("PARAMS: %s\n", params);
+                    jrb_insert_str(redBlackTree, strdup(is->text2), new_jval_s(params));
+                    // Ağaca eklemede bir sıkıntı yok. Örnek eklenen: add|mc|a|b|c
+                    // Çıktı: sipKey: add ve Valuelar: mc,a,b,c
                 }
             }
-            else {
-                printf("ERROR: add için 4 adet parametre giriniz.\n");
+            else if(!strcmp(is->text2, "search")) {
+                if(jrb_find_str(redBlackTree, is->fields[0]) != NULL) {
+                    printf("Aranan deger bulundu!\n");
+                    jrb_traverse(rDugum, redBlackTree) { // İçeriği yazdırabiliyorum fakat birden fazla içerik eklendiği zaman
+                        //sip = (Siparis *) rDugum->val.v; // sıkıntılar çıkıyor. sonradan kayboluyor bazı içerikler
+                        printf("%s, %s" , rDugum->key.s, rDugum->val.s);
+                    }       
+                }
             }
-        } // if(add) bitişi
-        else if(!strcmp(parcala, "pro")) {
-         
+
+            break;
         }
-        else if(!strcmp(parcala, "search")) {
-        
-        }
-        else if(!strcmp(parcala, "write")) {
-        
-        }
-        else if(!strcmp(parcala, "print")) {
-            jrb_traverse(rDugum, redBlackTree) {
-        		printf("Print sonucu: %s\n", jval_s(rDugum->key));
-        		// printf("%s ", jval_s(rDugum->val));
-        	}
-        }
-        else {
-            printf("Gecersiz komut. (add, search, write, print ve quit kullanilabilir.)\n");
-        }
-    }//WHILE(1) BITISI
+        // jrb_traverse(rDugum, redBlackTree) { // İçeriği yazdırabiliyorum fakat birden fazla içerik eklendiği zaman
+        //         //sip = (Siparis *) rDugum->val.v; // sıkıntılar çıkıyor. sonradan kayboluyor bazı içerikler
+        //         printf("sipKey: %s ve Value: %s\n" , rDugum->key.s, rDugum->val.s);
+        // }
+    }//WHILE() BITISI
     
     jrb_free_tree(redBlackTree);
     //free(sip); // Core dumped hatasına sebep oluyor
