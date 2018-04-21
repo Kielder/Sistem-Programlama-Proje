@@ -1,0 +1,6 @@
+add|14|Barbie|Metal|Green
+add|10|Book|Plastic|Green
+add|9|He-Man|Glass|Tornado Red
+add|3|Car|Wooden|Tornado Red
+add|18|iPhone|Wooden|Red
+add|7|Samsung|Iron|Black
