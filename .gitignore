@@ -49,4 +49,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 yedek.c
+test.txt
+test2.txt
 .vscode/
