@@ -1,5 +1,0 @@
-10,Book,Plastic,Green
-14,Barbie,Metal,Green
-18,iPhone,Wooden,Red
-3,Car,Wooden,Tornado Red
-9,He-Man,Glass,Tornado Red
